@@ -1,8 +1,8 @@
 var c = document.getElementById("canvas");
 var ctx = c.getContext("2d");
 var windowSize = Math.max(window.innerWidth, window.innerHeight) - 200;
-var replicationFactor = 16;
-var mirrorEnabled = true;
+var replicationFactor = 1;
+var mirrorEnabled = false;
 var iters = 20;
 
 /**
@@ -105,7 +105,7 @@ function drawArcs(current, radius, startAngle, deltaAngle) {
   });
 }
 
-// Initialize canvas
+// initialize canvas
 (function() { 
    canvas.width = windowSize;
    canvas.height = windowSize;
@@ -137,30 +137,34 @@ function drawArcs(current, radius, startAngle, deltaAngle) {
    };
    
    var flip = true;
+   var angle = Math.PI * (Math.random() - 0.5);
    
-   // draw a bit ... and then continue ...
+   // draw a single iteration
    var draw = function() {
      var radius = Math.max(20, 80 * (1 + gaussian()));
      
-     var startAngle = Math.PI * (Math.random() - 0.5);
      var deltaAngle = 2 * Math.PI / 4 * (1 + Math.random());
 
      if (flip) {
-       startAngle = -startAngle;
+       angle = -angle;
        deltaAngle = -deltaAngle;
      }
      
-     console.log("start: " + startAngle + ", delta: " + deltaAngle + ", radius: " + radius);
+     console.log("start: " + angle + ", delta: " + deltaAngle + ", radius: " + radius);
      
      if (mirrorEnabled) {
        ctx.strokeStyle = 'red';
-       drawArcs(createMirror(current), radius, -startAngle, -deltaAngle);
+       drawArcs(createMirror(current), radius, -angle, -deltaAngle);
      }
      ctx.strokeStyle = 'black';
-     current = drawArcs(current, radius, startAngle, deltaAngle);
+     current = drawArcs(current, radius, angle, deltaAngle);
      
      flip = !flip;
    };
    
-   setInterval(draw, 500);
+// setInterval(draw, 500);
+   var i;
+   for (i = 0; i < iters; i++) {
+     draw();
+   }
  })();
