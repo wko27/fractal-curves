@@ -1,6 +1,6 @@
 var c = document.getElementById("canvas");
 var ctx = c.getContext("2d");
-var windowSize = Math.max(window.innerWidth, window.innerHeight) - 200;
+var windowSize = Math.min(window.innerWidth, window.innerHeight);
 var replicationFactor = 16;
 var mirrorEnabled = true;
 var iters = 20;
