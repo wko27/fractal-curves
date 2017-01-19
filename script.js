@@ -3,36 +3,51 @@ var ctx = c.getContext("2d");
 var stop = false;
 var windowSize;
 var defaultLineWidth = window.devicePixelRatio <= 1 ? 2 : 1;
-var storeRandom = [];
+// I was going to make a border control joke here
+var margin = 0.8;
 
-var replicationFactor = 1;
-var mirrorEnabled = false;
-var iters = 20;
-var debug = true;
-var fakeRandom = [0.7778169248644149,0.3032784609438026,0.23358253119279104,0.6042392429654362,0.9671697149202039,0.8708810228803734,0.8885994880311516,0.028774254564111645,0.8051740260120732,0.9561311113217195,0.9576430384995658,0.07989189678983566,0.08925746760259812,0.6875554537391972,0.5851639400050501,0.02875269496621602,0.9021217290221515,0.6512297127057727,0.665704406535889,0.7459025552064804,0.5071069059011113,0.2974100652496088,0.5615271049056128,0.5702717079311244,0.7799439726475679,0.07377870097553774,0.7936336403605424,0.2573303626331911,0.149534321267357,0.6830052031359368,0.5720800134038633,0.9723027399880797,0.9378813841465801,0.3905765508500778,0.026930411435833967,0.06567485246080706,0.41795747204425404,0.9101694007506771,0.5316464678997059,0.04812329200522636,0.868956376511288,0.2620807392095499,0.12735554660503712,0.8500486589496874,0.39402444205429465,0.7639615813130265,0.695715685668902,0.5017901158855969,0.5887280992080408,0.4788202525415075,0.39236444086784084,0.6978467595352438,0.8542365488937165,0.17083215783180883,0.8278558831415834,0.3193951713452954,0.729537039944977,0.6171247769465766,0.7469400034604605,0.23278819283114682];
+var iter = 0;
+var endIter = 0;
+
+var primaryColors = ["000000"];
+var primaryColors = ["031DFF", "0AA4FF", "03D0E8", "03FFD4"];
+var mirrorColors = [];
+
+var replicationFactor = 8;
+var mirrorEnabled = true;
+var maxIters = 50;
+var maxEndIters = 4;
+
+var debug = false;
+var storeRandom = [];
+var fakeRandom = [46.26466278951179,1.3531117222330236,41.330530788711904,1.8718397504545032,42.38583754743207,0.13781037782204525,22.484468838268683,2.750881809866685,29.16686842207973,0.5238803685574092,25.73630655318655,2.5561647864477552,34.6295488383019,0.002953619589451574,45.76912882377218,0.5797053551224277,40.31859692758661,0.5023497525329003,21.21050793846852,0.7722906928646434,43.32242099819483,1.8737170601684747,38.89514063212586,2.6358988937599492,22.46111854760044,2.5025681108267412,43.04811087751042,0.43092308339266977,41.88597584800249,1.517014727684606,21.432359648561775,0.13164319595251342,34.19997790869224,0.30981446220734415,36.506145920794786,2.4212041534747364,47.155457214263116,2.4375607006288513,34.57369202074159,1.9935975599243054,42.11684673868001,0.858647735190806,44.762359497875046,0.8108920676968376,29.018866563908617,1.0173409812209675,44.45831236580453,2.716046075034544,26.675488392994623,0.40218938510006474,49.81554867927158,0.06217522572963817,21.599683838195727,0.4935411365977172,27.036507598065903,2.8277242326321415,27.435503182756975,2.750582037545409,40.9947593320155,1.72786335698188,35.70857063527947,1.728400716354371,48.921624807783886,0.006481648380954019,44.66692168657447,0.6655871777214549,32.22919229822575,0.4495324702021018,21.137140154985666,1.135951888700134,49.526942640277596,1.9866021153265372,32.087080611634576,1.52530503910198,25.49576373828412,2.305307996238835,28.908852657182116,0.9572338804555899,38.97232069941694,2.7883581640081636,34.23513068705127,0.6713741211181998,46.8648130021447,2.26240446862154,20.065964237731645,1.9507564209253734,49.01065253013551,2.2765842615850387,30.80028416894678,2.2133605336025184,31.275652578339876,3.0337738434281882,42.8834366640105,3.0072260352153277,26.19999766899899,0.6309132334301144,37.351463146047266,2.821980297583562,44.8944884374323,1.0731927481135377];
+
+if (debug) {
+  replicationFactor = 1;
+  mirrorEnabled = false;
+}
 
 /**
  * @return Randomly chosen value from Gaussian distribution on (-inf, +inf)
  * Note this uses the Box-Muller method and is pretty slow
  */
 function gaussian(mu, sigma) {
-  var u = 1 - uniform(); // Subtraction to flip [0, 1) to (0, 1].
-  var v = 1 - uniform();
+  var u = 1 - uniform(0, 1); // Subtraction to flip [0, 1) to (0, 1].
+  var v = 1 - uniform(0, 1);
   return mu + sigma * Math.sqrt(-2.0 * Math.log(u)) * Math.cos(2.0 * Math.PI * v);
 }
 
 /** @return Randomly chosen value from uniform distribution on [0, 1) */
-function uniform() {
-//  return 0.5;
+function uniform(lower, upper) {
   if (debug) {
       return fakeRandom.shift();
   }
-  var r = Math.random();
+  var r = lower + Math.random() * (upper - lower);
   storeRandom.push(r);
   return r;
 }
 
-/** @return Polar coordinates for the given cartesian coordinates */
+/** @return Polar coordinates for the given Cartesian coordinates */
 function toPolar(c) {
   return {
     radius: Math.sqrt(c.x * c.x + c.y * c.y),
@@ -87,6 +102,7 @@ function drawLines(current, next) {
     var xCurrent = toCartesian(currentReplicas[x]);
     var xNext = toCartesian(nextReplicas[x]);
 
+    ctx.beginPath();
     ctx.moveTo(xCurrent.x, xCurrent.y);
     ctx.lineTo(xNext.x, xNext.y);
     ctx.stroke();
@@ -100,7 +116,7 @@ function drawLines(current, next) {
  * @param startAngle Angle to start from
  * @param endAngle Angle to end at
  */
-function drawArcs(center, radius, startAngle, deltaAngle) {
+function drawArcs(center, radius, startAngle, deltaAngle, style) {
   var counterClockwise = deltaAngle < 0;
   var replicas = createReplicas(center);
   var i;
@@ -108,25 +124,26 @@ function drawArcs(center, radius, startAngle, deltaAngle) {
     var replica = toCartesian(replicas[i]);
     var replicaStartAngle = startAngle + i * 2 * Math.PI / replicationFactor;
     var replicaEndAngle = (startAngle + deltaAngle) + i * 2 * Math.PI / replicationFactor;
-//    console.log(replicaStartAngle + " " + replicaEndAngle);
-    // Please note that the end angle is measured CLOCKWISE FROM THE X-AXIS (according to spec)
+    // Note that the end angle is measured CLOCKWISE FROM THE X-AXIS (according to spec)
     ctx.beginPath();
     ctx.arc(replica.x, replica.y, radius, replicaStartAngle, replicaEndAngle, counterClockwise);
     ctx.stroke();
-  }
-  
-/*  ctx.beginPath();
-  var old = ctx.strokeStyle;
-  ctx.strokeStyle = "blue";
-  ctx.arc(center.x, center.y, radius, startAngle + deltaAngle, startAngle + deltaAngle + 1);
+  }  
+}
+
+/**
+ * Draw a line from start to end
+ */
+function line(start, end) {
+  ctx.beginPath();
+  ctx.moveTo(start.x, start.y);
+  ctx.lineTo(end.x, end.y);
   ctx.stroke();
-  ctx.strokeStyle = old;
-*/
 }
 
 /**
  * Draw a tiny circle at the given coordinates
- * @param center Center of the circle in cartesian coordinates
+ * @param center Center of the circle in Cartesian coordinates
  */
 function circle(center) {
   var oldWidth = ctx.lineWidth;
@@ -138,6 +155,29 @@ function circle(center) {
   ctx.stroke();
   ctx.lineWidth = oldWidth;
   ctx.strokeStyle = oldStyle;
+}
+
+/**
+ * Find the circle which intersects both the from and to points (in Cartesian coordinates)
+ * intersecting the from point at the given angle
+ */
+function circleAtTarget(from, to, angle) {
+  // shift the circle so the to is at the origin
+  var a = from.x - to.x;
+  var b = from.y - to.y;
+  
+  // basically we're solving for two linear equations
+  // (x - a)^2 + (x - b)^2 = x^2 + b^2 since the center's distance to the current point is equivalent to the center's distance to the origin
+  // a = x + r * cos(theta) and b = x + r * sin(theta) since the angle to current is fixed
+  var x = (a * a - b * b + 2 * a * b * Math.tan(angle)) / (2 * (a + b * Math.tan(angle)));
+  var y = ((a * a + b * b) / 2 - a * x) / b;
+  return {
+    center: {
+      x: x + to.x,
+      y: y + to.y
+    },
+    radius: Math.sqrt((x - a) * (x - a) + (y - b) * (y - b))
+  };
 }
 
 // initialize canvas
@@ -176,64 +216,46 @@ function circle(center) {
 	   y: 0
 	 };
        }
-       
+
        return {
 	 x: this.center.x + this.radius * Math.cos(this.angle + this.deltaAngle),
-	 y: this.center.y + this.radius * Math.sin(this.angle + this.deltaAngle),
+	 y: this.center.y + this.radius * Math.sin(this.angle + this.deltaAngle)
        };
      },
      /** Updates state */
-     update: function() {
-       if (stop) {
-	 throw Error(storeRandom);
-       }
-       
+     update: function() {       
        var current = this.end();
        var angle = (this.angle + this.deltaAngle + Math.PI) % (2 * Math.PI);
-       var radius = Math.max(0, gaussian(20, 10));
-       var deltaAngle = Math.PI / 2 * (1 + uniform());
+       var radius = uniform(20, 50);
+       var deltaAngle = uniform(0, Math.PI);
 
-       if (currentState.clockwise) {
+       // Switch from clockwise to cc or vice versa
+       if (currentState.deltaAngle > 0) {
 	 deltaAngle = -deltaAngle;
        }
 
        var center;
        // Check if the end point would be out of the canvas
-       if (Math.max(
+       var edge = Math.max(
 	     Math.abs(current.x + radius * Math.cos(deltaAngle)),
-	     Math.abs(current.y + radius * Math.sin(deltaAngle))) > windowSize * 0.25) {
+	     Math.abs(current.y + radius * Math.sin(deltaAngle)));
+       if (edge > windowSize / 2) {
 	 // If so, then adjust the arc to return to the origin
-	 console.log(this.angle);
-	 console.log(angle);
+
+	 // Continue in the same clockwise/cc direction
 	 angle = (angle + Math.PI) % (2 * Math.PI);
-	 console.log("angle outside is: " + angle);
-
-	 center = ((function() {
-	   var a = current.x;
-	   var b = current.y;
-
-	   // basically we're solving for two linear equations
-	   // (x - a)^2 + (x - b)^2 = x^2 + b^2 since the center's distance to the current point is equivalent to the center's distance to the origin
-	   // a = x + r * cos(theta) and b = x + r * sin(theta) since the angle to current is fixed
-           var x = (a * a - b * b + 2 * a * b * Math.tan(angle)) / (2 * (a + b * Math.tan(angle)));
-	   var y = ((a * a + b * b) / 2 - a * x) / b;
-	   return {
-	     x: x,
-	     y: y
-	   };
-	 })());
 	 
-	 radius = Math.sqrt(center.x * center.x + center.y * center.y);
-	 deltaAngle = Math.PI - Math.acos(-center.x / radius);
+	 var target = circleAtTarget(current, {x: 0, y: 0}, angle);
+	 center = target.center;
+	 radius = target.radius;
 	 
-	 
-	 console.log()
-
-	 this.clockwise = !this.clockwise;
-	 stop = true;
-//	 throw new Error(i);
-       } else {
-       if (this.center == null) {
+	 // Ensure we go back to center on a clockwise or cc arc
+	 if (this.deltaAngle > 0) {
+	   deltaAngle = 2 * Math.PI + Math.acos(-center.x / radius) - angle;
+	 } else {
+	   deltaAngle = - Math.acos(-center.x / radius) - angle;
+	 }
+       } else if (this.center == null) {
 	 center = {
 	   x: -radius * Math.cos(currentState.angle),
 	   y: -radius * Math.sin(currentState.angle)
@@ -244,34 +266,11 @@ function circle(center) {
 	   y: current.y + (current.y - this.center.y) * radius / currentState.radius
 	 };
        }
-       }
-
-       if (stop) {
-	 var startX = center.x + radius * Math.cos(angle);
-	 var startY = center.y + radius * Math.sin(angle);
-	 console.log("start is at " + startX + " " + startY);
-	 console.log(currentState.end());
-	 
-	 var endX = center.x + radius * Math.cos(angle + deltaAngle);
-	 var endY = center.y + radius * Math.sin(angle + deltaAngle);
-	 console.log("end is currently at:")
-	 console.log(current);
-	 console.log("angle is: " + angle);
-
-	 console.log("center: ");
-	 console.log(center);
-	 console.log("end up at: ");
-	 console.log(endX + " " + endY);
-	 circle(current);
-	 circle(center);
-	 circle({x: endX, y: endY});
-       }
 
        this.center = center;
        this.radius = radius;
        this.angle = angle;
        this.deltaAngle = deltaAngle;
-       this.clockwise = !this.clockwise;
      },
      arcLength: function() {
        return 2 * this.radius * deltaAngle;
@@ -283,21 +282,15 @@ function circle(center) {
      // starting angle of the arc
      angle: 0,
      // change in angle of the arc
-     deltaAngle: -Math.PI,
-     // whether we are clockwise or counterclockwise
-     clockwise: false
+     deltaAngle: -Math.PI
    };
    
    // draw a single iteration
    var draw = function() {
      currentState.update();
-
-     // debug
-//     console.log(currentState);
-//     console.log(currentState.end());
-
+     
      if (mirrorEnabled) {
-       ctx.strokeStyle = 'red';
+       ctx.strokeStyle = '#A9A9A9';
        drawArcs(
 	 createMirror(toPolar(currentState.center)),
 	 currentState.radius,
@@ -305,8 +298,8 @@ function circle(center) {
 	 -currentState.deltaAngle
        );
      }
-     
-     ctx.strokeStyle = 'black';
+
+     ctx.strokeStyle = "#" + primaryColors[endIter % primaryColors.length];
      drawArcs(
        toPolar(currentState.center),
        currentState.radius,
@@ -314,18 +307,26 @@ function circle(center) {
        currentState.deltaAngle
      );
      
-     var end = currentState.end();
-     ctx.moveTo(currentState.center.x, currentState.center.y);
-     ctx.lineTo(end.x, end.y);
-     ctx.stroke();
-
+     if (debug) {
+       line(currentState.center, currentState.end());
+     }
    };
    
-// setInterval(draw, 100);
-   var i;
-   for (i = 0; i < iters; i++) {
+   var timedDraw = function() {
      draw();
-   }
-   stop = true;
-   draw();
+     
+     iter ++;
+     var end = currentState.end();
+     if (end.x * end.x + end.y * end.y < 0.1) {
+       endIter ++;
+     }
+     
+     if (iter < maxIters && endIter < maxEndIters) {
+       setTimeout(timedDraw, 100);
+     } else {
+       throw Error(storeRandom);
+     }
+   };
+   
+   timedDraw();
  })();
