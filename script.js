@@ -1,36 +1,60 @@
-var c = document.getElementById("canvas");
-var ctx = c.getContext("2d");
-var defaultLineWidth = window.devicePixelRatio <= 1 ? 2 : 1;
-var windowSize;
+/**
+ * 
+ */
+var windowWidth = window.innerWidth;
+var windowHeight = window.innerHeight;
+var lineWidth = window.devicePixelRatio <= 1 ? 2 : 1;
 
-/** Each iteration, we draw a full arc */
-var iter = 0;
-/** Each end iteration, we reach the edge of the canvas and traverse back to the center */
-var endIter = 0;
 /** Length of an arc to draw per tick (speed of animation) */
-var lengthPerTick = 10;
+var lengthPerTick = 10000;
 /** Refresh interval in ms */
 var refreshInterval = 30;
+/** Duration of the fade in milliseconds */
+var fadeDuration = 5000;
 
-var primaryColors = ["000000"];
 var primaryColors = ["031DFF", "0AA4FF", "03D0E8", "03FFD4"];
-var mirrorColors = [];
 
-var replicationFactor = 8;
+var replicationFactor = 9;
 var mirrorEnabled = true;
-var maxIters = 50;
-var maxEndIters = 4;
+var stop = false;
 
-var debug = false;
+var debug = true;
+var debugTick = 0;
+var debugWindowWidth = 1440;
+var debugWindowHeight = 723;
+var debugRandom = [36.66749472867343,0.5803072437061573,40.54311063412653,1.095065208473482,46.75566512044486,0.6889392227448371,29.39461449466377,1.5043404840968815,29.246486977465853,2.5270691827877942,44.89622222458398,2.071488964454456,28.47217691107543,2.240188308062647,34.22089343560671,0.45817129755060415,23.213031840674955,0.6949415143906211,29.466983116830487,0.3120763376537161,41.77709794833548,1.784254068181204,38.01305499867807,2.495799945044138,27.956854622509304,2.117407986280862,43.64856970759081,0.19928420169101,25.429133930898118,1.88075650939983,47.99592675205919,2.593528778243238,44.09284134601582,0.01697566665828437,37.40807511805197,2.990666831806416,20.656888777622818,2.368879535204684,34.244717669516575,1.1891090259144164,36.838805641252065,2.7983089096735982,30.798215746937565,1.1727125486292675,22.0588134958852,1.5163022590823703,45.68895137576213,1.7030539228309174,47.14459847209878,1.1955399131111042,26.42215870818317,0.6559075347919783,35.29876771475159,3.088209415524267];
 var storeRandom = [];
-var debugWindowSize = 679;
-var debugRandom = [26.940239797108266,3.082881315349646,39.908285498437166,2.5616484469781677,27.000734163945992,1.8984444033437886,49.92217708035817,2.229463822493238,21.029851301634526,0.010437991815959655,22.44315941658912,2.382030670093369,31.385171969721526,1.0097977465863788,23.89710731513463,1.37210017579784,46.404332769512365,2.1420127061377667,42.05320099949865,0.6926920764888791,40.79656562709418,0.4271523548731313,42.2436978190472,1.2035645803568855,38.65259568013245,2.9426243938092767,24.7834154928548,2.7833627024822225,24.58675018396172,0.14570950607774896,23.299190997236362,2.5034707881814176,48.024258916169096,2.2297729998583407,36.31394277455227,2.3466018104543345,36.15671393501213,0.6906027783363308,42.31523537698024,1.6845550946718875,36.60672643453391,1.2384650187944668,40.197120415118576,1.3022272731468434,37.06708528021163,0.3730572895964945,35.6922713585612,0.2985769772173546,36.297917278872134,1.0394294113750677,36.93140779955076,0.7989099398881074,27.56042274570799,0.03207989974658804,24.369778534443647,0.5095025735006591,22.663566533507804,0.7882192435917591,46.265977923920204,0.6311659378155667,24.25858550758324,0.8380615074834942,28.906898549617978,1.0103768935744495,46.01805293865753,2.1562849484595916,44.003042086594775,2.7160686824990306,28.389735366213618,1.8280232136570744,42.759506947321995,0.7312088449022315,45.39418080748936,1.4145300482945493,38.77387896753385,0.548141227184111,44.099554133223364,2.717879600079727,25.992187726617097,2.55505118436093,35.09239632631704,0.5751957900506862,26.449488145384585,1.6626762053692588,30.277341733748095,1.9770386812062246,32.67250008654892,1.316675101953378,47.07871348625002,1.0692950361375473,47.14242980331655,0.7587027664616546,34.282363759226435,1.6472881571392033,22.223028726169765,0.34451849585998,36.49029439558298,1.385569271285071,45.97020991049736,0.5519270162160492];
 
 if (debug) {
   replicationFactor = 1;
   mirrorEnabled = false;
-  
+  windowWidth = debugWindowWidth;
+  windowHeight = debugWindowHeight;
 }
+
+// register a mouse event listener
+document.addEventListener("click", function(){
+   stop = true;
+});
+
+// draw axes
+(function() {
+   var ctx = createCanvasContext();
+   var center = {
+     radius: 0,
+     angle: 0
+   };
+   var edge = {
+     radius: Math.max(windowWidth, windowHeight),
+     angle: 0
+   };
+   ctx.lineWidth = 1;
+   ctx.strokeStyle = "grey";
+   drawLines(ctx, center, edge);
+}());
+
+// draw first fractal
+drawFractal(0);
 
 /**
  * @return Randomly chosen value from Gaussian distribution on (-inf, +inf)
@@ -98,10 +122,11 @@ function createMirror(c) {
 
 /**
  * Draw lines from current to the next
+ * @param ctx Canvas context
  * @param current Current location in polar coordinates
  * @param next Next location in polar coordinates
  */
-function drawLines(current, next) {
+function drawLines(ctx, current, next) {
   var currentReplicas = createReplicas(current);
   var nextReplicas = createReplicas(next);
   var x;
@@ -118,12 +143,13 @@ function drawLines(current, next) {
 
 /**
  * Draw arcs
+ * @param ctx Canvas context
  * @param center Center of the circle in polar coordinates
  * @param radius Radius of the arc
  * @param startAngle Angle to start from
  * @param endAngle Angle to end at
  */
-function drawArcs(center, radius, startAngle, deltaAngle, style) {
+function drawArcs(ctx, center, radius, startAngle, deltaAngle, style) {
   var counterClockwise = deltaAngle < 0;
   var replicas = createReplicas(center);
   var i;
@@ -141,7 +167,7 @@ function drawArcs(center, radius, startAngle, deltaAngle, style) {
 /**
  * Draw a line from start to end
  */
-function line(start, end) {
+function line(ctx, start, end) {
   ctx.beginPath();
   ctx.moveTo(start.x, start.y);
   ctx.lineTo(end.x, end.y);
@@ -152,7 +178,7 @@ function line(start, end) {
  * Draw a tiny circle at the given coordinates
  * @param center Center of the circle in Cartesian coordinates
  */
-function circle(center) {
+function circle(ctx, center) {
   var oldWidth = ctx.lineWidth;
   var oldStyle = ctx.strokeStyle;
   ctx.lineWidth = 1;
@@ -187,171 +213,195 @@ function circleAtTarget(from, to, angle) {
   };
 }
 
-// initialize canvas
-(function() { 
-   canvas.width = window.innerWidth;
-   canvas.height = window.innerHeight;
-   ctx.translate(canvas.width / 2, canvas.height / 2);
-   windowSize = Math.min(canvas.width, canvas.height);
-   if (debug) {
-     windowSize = debugWindowSize;
-   }
- }());
+/** Create a new canvas and initialize */
+function createCanvasContext() {
+  var canvas = document.createElement("canvas");
+  document.body.appendChild(canvas);
+  
+  canvas.width = windowWidth;
+  canvas.height = windowHeight;
 
-// draw axes
-(function() {
-   var center = {
-     radius: 0,
-     angle: 0
-   };
-   var edge = {
-     radius: Math.max(canvas.width, canvas.height),
-     angle: 0
-   };
-   ctx.lineWidth = 1;
-   ctx.strokeStyle = "grey";
-   drawLines(center, edge);
-}());
+  canvas.style.padding = 0;
+  canvas.style.margin = "auto";
+  canvas.style.display = "block";
+  canvas.style.transition = "opacity " + fadeDuration + "ms ease-out";
+  canvas.style.position = "absolute";
+  
+  var ctx = canvas.getContext("2d");
+  ctx.translate(canvas.width / 2, canvas.height / 2);
+  
+  return ctx;
+}
 
-// draw rest
-(function() {
-   ctx.lineWidth = defaultLineWidth;
+/** Draw a single randomized fractal that starts and ends at the origin */
+function drawFractal(fractalIter) {
+  var ctx = createCanvasContext();
+  ctx.lineWidth = lineWidth;
 
-   var currentState = {
-     /** @return end of the current path */
-     end: function() {
-       if (this.center == null) {
-         return {
-	   x: 0,
-	   y: 0
-	 };
-       }
+  var currentState = {
+    /** @return end of the current path */
+    end: function() {
+      if (this.center == null) {
+        return {
+	  x: 0,
+	  y: 0
+	};
+      }
 
-       return {
-	 x: this.center.x + this.radius * Math.cos(this.angle + this.deltaAngle),
-	 y: this.center.y + this.radius * Math.sin(this.angle + this.deltaAngle)
-       };
-     },
-     /** Chooses a new arc */
-     chooseNewArc: function() {       
-       var current = this.end();
-       var angle = (this.angle + this.deltaAngle + Math.PI) % (2 * Math.PI);
-       var radius = uniform(20, 50);
-       var deltaAngle = uniform(0, Math.PI);
+      return {
+	x: this.center.x + this.radius * Math.cos(this.angle + this.deltaAngle),
+	y: this.center.y + this.radius * Math.sin(this.angle + this.deltaAngle)
+      };
+    },
+    /** Chooses a new arc */
+    chooseNewArc: function() {
+      var current = this.end();
+      var angle = (this.angle + this.deltaAngle + Math.PI) % (2 * Math.PI);
+      var radius = uniform(20, 50);
+      var deltaAngle = uniform(0, Math.PI);
 
-       // Switch from clockwise to cc or vice versa
-       if (currentState.deltaAngle > 0) {
-	 deltaAngle = -deltaAngle;
-       }
+      // Switch from clockwise to cc or vice versa
+      if (currentState.deltaAngle > 0) {
+	deltaAngle = -deltaAngle;
+      }
 
-       var center;
-       // Check if the end point would be out of the canvas
-       var edge = Math.max(
-	     Math.abs(current.x + radius * Math.cos(deltaAngle)),
-	     Math.abs(current.y + radius * Math.sin(deltaAngle)));
-       if (edge > windowSize / 2) {
-	 // If so, then adjust the arc to return to the origin
+      var center;
+      // Check if the end point would be out of the canvas
+      var edge = Math.max(
+	Math.abs(current.x + radius * Math.cos(deltaAngle)),
+	Math.abs(current.y + radius * Math.sin(deltaAngle)));
+      var maxEdge = Math.min(windowHeight, windowWidth) / 2;
+      this.lastArc = edge > maxEdge;
 
-	 // Continue in the same clockwise/cc direction
-	 angle = (angle + Math.PI) % (2 * Math.PI);
-	 
-	 var target = circleAtTarget(current, {x: 0, y: 0}, angle);
-	 center = target.center;
-	 radius = target.radius;
-	 
-	 // Ensure we go back to center on a clockwise or cc arc
-	 if (this.deltaAngle > 0) {
-	   deltaAngle = 2 * Math.PI + Math.acos(-center.x / radius) - angle;
-	 } else {
-	   deltaAngle = - Math.acos(-center.x / radius) - angle;
-	 }
-	 
-	 endIter++;
-       } else if (this.center == null) {
-	 center = {
-	   x: -radius * Math.cos(currentState.angle),
-	   y: -radius * Math.sin(currentState.angle)
-	 };
-       } else {
-	 center = {
-	   x: current.x + (current.x - this.center.x) * radius / currentState.radius,
-	   y: current.y + (current.y - this.center.y) * radius / currentState.radius
-	 };
-       }
+      // If this is the first arc of the fractal, then choose a center
+      if (this.center == null) {
+	center = {
+	  x: -radius * Math.cos(currentState.angle),
+	  y: -radius * Math.sin(currentState.angle)
+	};
+      } else if (this.lastArc) {
+	// If we've almost exceeded the boundary of the canvas, then this is the last arc of the fractal
+	// and we return to the origin
 
-       this.center = center;
-       this.radius = radius;
-       this.angle = angle;
-       this.deltaAngle = deltaAngle;
-       this.subArc = lengthPerTick / (radius * Math.abs(deltaAngle));
-     },
-     arcLength: function() {
-       return 2 * this.radius * deltaAngle;
-     },
-     // center of the arc
-     center: null,
-     // radius of the arc
-     radius: 0,
-     // starting angle of the arc
-     angle: 0,
-     // change in angle of the arc
-     deltaAngle: -Math.PI,
-     // percentage of arc we draw in each tick
-     subArc: 0,
-     // current tick of the current arc
-     tick: 0
-   };
-   
-   // draw a single iteration
-   var draw = function() {
-     if (currentState.subArc === 0 || currentState.tick * currentState.subArc >= 1) {
-       currentState.chooseNewArc();
-       currentState.tick = 0;
-     }
-     
-     var startAngle = currentState.angle + currentState.tick * (currentState.deltaAngle * currentState.subArc);
-     var deltaAngle = currentState.subArc * currentState.deltaAngle;
-     if ((currentState.tick + 1) * currentState.subArc >= 1) {
-       deltaAngle = (1 - currentState.tick * currentState.subArc) * currentState.deltaAngle;
-       // ok this is kind of sneaky ...
-       iter++;
-     }
-     
-     currentState.tick++;
-     
-     if (mirrorEnabled) {
-       ctx.strokeStyle = '#A9A9A9';
-       drawArcs(
-	 createMirror(toPolar(currentState.center)),
-	 currentState.radius,
-	 -startAngle,
-	 -deltaAngle
-       );
-     }
+	// Continue in the same clockwise/cc direction
+	angle = (angle + Math.PI) % (2 * Math.PI);
+	
+	var target = circleAtTarget(current, {x: 0, y: 0}, angle);
+	center = target.center;
+	radius = target.radius;
+	
+	// Ensure we go back to center on a clockwise or cc arc
+	if (this.deltaAngle > 0) {
+	  deltaAngle = 2 * Math.PI + Math.acos(-center.x / radius) - angle;
+	} else {
+	  deltaAngle = - Math.acos(-center.x / radius) - angle;
+	}
+      } else {
+	center = {
+	  x: current.x + (current.x - this.center.x) * radius / currentState.radius,
+	  y: current.y + (current.y - this.center.y) * radius / currentState.radius
+	};
+      }
 
-     ctx.strokeStyle = "#" + primaryColors[endIter % primaryColors.length];
-     drawArcs(
-       toPolar(currentState.center),
-       currentState.radius,
-       startAngle,
-       deltaAngle
-     );
-     
-     if (debug) {
-       line(currentState.center, currentState.end());
-     }
-   };
-   
-   var timedDraw = function() {
-     draw();
-          
-     if (iter < maxIters && endIter < maxEndIters) {
-       setTimeout(timedDraw, refreshInterval);
-     } else {
-       console.log("window size: " + windowSize);
-       console.log("random: " + JSON.stringify(storeRandom));
-     }
-   };
-   
-   timedDraw();
- })();
+      this.center = center;
+      this.radius = radius;
+      this.angle = angle;
+      this.deltaAngle = deltaAngle;
+      this.subArcPct = lengthPerTick / (radius * Math.abs(deltaAngle));
+    },
+    // center of the arc
+    center: null,
+    // radius of the arc
+    radius: 0,
+    // starting angle of the arc
+    angle: 0,
+    // change in angle of the arc
+    deltaAngle: -Math.PI,
+    // percentage of arc we draw in each tick
+    subArcPct: 0,
+    // current tick of the current arc
+    subArcTick: 0,
+    // whether this is the last arc to draw for this fractal
+    lastArc: false
+  };
+  
+  /** 
+   * Draw a single tick of an arc
+   * @return True if the fractal is complete
+   */
+  var drawTick = function() {
+    if (currentState.subArcPct === 0 || currentState.subArcTick * currentState.subArcPct >= 1) {
+      if (currentState.lastArc) {
+	return true;
+      }
+      
+      currentState.chooseNewArc();
+      currentState.subArcTick = 0;
+    }
+    
+    var startAngle = currentState.angle + currentState.subArcTick * (currentState.deltaAngle * currentState.subArcPct);
+    var deltaAngle = currentState.subArcPct * currentState.deltaAngle;
+    if ((currentState.subArcTick + 1) * currentState.subArcPct >= 1) {
+      deltaAngle = (1 - currentState.subArcTick * currentState.subArcPct) * currentState.deltaAngle;
+    }
+    
+    currentState.subArcTick++;
+    
+    if (mirrorEnabled) {
+      ctx.strokeStyle = '#A9A9A9';
+      drawArcs(
+	ctx,
+	createMirror(toPolar(currentState.center)),
+	currentState.radius,
+	  -startAngle,
+	  -deltaAngle
+      );
+    }
+
+    ctx.strokeStyle = "#" + primaryColors[fractalIter % primaryColors.length];
+    drawArcs(
+      ctx,
+      toPolar(currentState.center),
+      currentState.radius,
+      startAngle,
+      deltaAngle
+    );
+    
+    if (debug) {
+      line(ctx, currentState.center, currentState.end());
+    }
+    
+    return false;
+  };
+  
+  var draw = function() {
+    if (stop) {
+      console.log("window height: " + windowHeight);
+      console.log("window width: " + windowWidth);
+      console.log("random: " + JSON.stringify(storeRandom));
+      return;
+    }
+    
+    var done = drawTick();
+    debugTick++;
+    
+    if (debugTick == 11) {
+      stop = true;
+    }
+
+    if (!done) {
+      setTimeout(draw, refreshInterval);
+    } else {
+      ctx.canvas.style.opacity = 0;
+      setTimeout(function() {
+	drawFractal(fractalIter + 1);
+      }, refreshInterval);
+      
+      setTimeout(function() {
+	document.body.removeChild(ctx.canvas);
+      }, fadeDuration);
+    }
+  };
+  
+  draw();
+};
