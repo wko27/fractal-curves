@@ -6,7 +6,7 @@ var windowHeight = window.innerHeight;
 var lineWidth = window.devicePixelRatio <= 1 ? 2 : 1;
 
 /** Length of an arc to draw per tick (speed of animation) */
-var lengthPerTick = 10000;
+var lengthPerTick = 10;
 /** Refresh interval in ms */
 var refreshInterval = 30;
 /** Duration of the fade in milliseconds */
@@ -19,17 +19,23 @@ var mirrorEnabled = true;
 var stop = false;
 
 var debug = true;
+var debug = false;
 var debugTick = 0;
 var debugWindowWidth = 1440;
 var debugWindowHeight = 723;
 var debugRandom = [36.66749472867343,0.5803072437061573,40.54311063412653,1.095065208473482,46.75566512044486,0.6889392227448371,29.39461449466377,1.5043404840968815,29.246486977465853,2.5270691827877942,44.89622222458398,2.071488964454456,28.47217691107543,2.240188308062647,34.22089343560671,0.45817129755060415,23.213031840674955,0.6949415143906211,29.466983116830487,0.3120763376537161,41.77709794833548,1.784254068181204,38.01305499867807,2.495799945044138,27.956854622509304,2.117407986280862,43.64856970759081,0.19928420169101,25.429133930898118,1.88075650939983,47.99592675205919,2.593528778243238,44.09284134601582,0.01697566665828437,37.40807511805197,2.990666831806416,20.656888777622818,2.368879535204684,34.244717669516575,1.1891090259144164,36.838805641252065,2.7983089096735982,30.798215746937565,1.1727125486292675,22.0588134958852,1.5163022590823703,45.68895137576213,1.7030539228309174,47.14459847209878,1.1955399131111042,26.42215870818317,0.6559075347919783,35.29876771475159,3.088209415524267];
+var debugRandom = [27.962843813932935,3.0939100600351352,24.170794289120362,2.6219526639074973,30.041845891194583,0.6516121457289219,45.26320423775822,1.102265259939747,29.28763965305206,1.979026146019445,24.978783980135056,0.02843713285962057,24.35827389266104,3.0804393955318905,28.921820159641925,2.8366946770439365,33.235753572143125,0.19692795191124332,33.630051990377616,0.1435927902919604,33.06539334582426,1.7513902970366828,40.63615206999657,1.1678772010984182,20.522566541897923,0.34461070766055174,49.78821235011968,1.5294823386030196,36.12087691923132,3.0415662846349982,39.07220775143301,0.2506656342763163];
+var debugRandom = [24.211414905190836,1.5516969722623675,42.844115515888745,0.005811902718701385,45.35917548990889,3.0944022059104928,48.64211635201818,2.1631624145821977,25.69107316341308,2.5250690970976053,31.308238857963882,2.8353846340899262,42.40947085085639,0.45270941516598917,32.030004179430584,2.61606620393954,33.56291171051288,2.0986699936005104];
+var debugRandom = [22.114510674423848,2.3539754048546726,26.36204043344096,2.0095878245358,25.772525864273398,1.314034450479928,45.527751369124225,0.9160868361670123,42.234748471590954,2.4056515816243467,41.259034206580935,2.1073352837621653,42.98704943357763,1.201587529428262,33.37887892251614,0.45164352112689615,46.89729246507718,1.8592255075081188];
 var storeRandom = [];
 
 if (debug) {
   replicationFactor = 1;
   mirrorEnabled = false;
-  windowWidth = debugWindowWidth;
-  windowHeight = debugWindowHeight;
+//  windowWidth = debugWindowWidth;
+//  windowHeight = debugWindowHeight;
+  lengthPerTick = 1000;
+
 }
 
 // register a mouse event listener
@@ -202,6 +208,7 @@ function circleAtTarget(from, to, angle) {
   // basically we're solving for two linear equations
   // (x - a)^2 + (x - b)^2 = x^2 + b^2 since the center's distance to the current point is equivalent to the center's distance to the origin
   // a = x + r * cos(theta) and b = x + r * sin(theta) since the angle to current is fixed
+  // thanks yeager :P
   var x = (a * a - b * b + 2 * a * b * Math.tan(angle)) / (2 * (a + b * Math.tan(angle)));
   var y = ((a * a + b * b) / 2 - a * x) / b;
   return {
@@ -229,8 +236,14 @@ function createCanvasContext() {
   
   var ctx = canvas.getContext("2d");
   ctx.translate(canvas.width / 2, canvas.height / 2);
+//  ctx.translate(0, -300);
   
   return ctx;
+}
+
+function normalize(angle) {
+  var mod = 2 * Math.PI;
+  return ((angle % mod) + mod) % mod;
 }
 
 /** Draw a single randomized fractal that starts and ends at the origin */
@@ -256,11 +269,12 @@ function drawFractal(fractalIter) {
     /** Chooses a new arc */
     chooseNewArc: function() {
       var current = this.end();
-      var angle = (this.angle + this.deltaAngle + Math.PI) % (2 * Math.PI);
+      // Add pi to switch from cw to cc
+      var angle = normalize(this.angle + this.deltaAngle + Math.PI);
       var radius = uniform(20, 50);
       var deltaAngle = uniform(0, Math.PI);
 
-      // Switch from clockwise to cc or vice versa
+      // Switch from cw to cc or vice versa
       if (currentState.deltaAngle > 0) {
 	deltaAngle = -deltaAngle;
       }
@@ -270,9 +284,9 @@ function drawFractal(fractalIter) {
       var edge = Math.max(
 	Math.abs(current.x + radius * Math.cos(deltaAngle)),
 	Math.abs(current.y + radius * Math.sin(deltaAngle)));
-      var maxEdge = Math.min(windowHeight, windowWidth) / 2;
+      var maxEdge = Math.min(windowHeight, windowWidth) * 2 / 6;
       this.lastArc = edge > maxEdge;
-
+      
       // If this is the first arc of the fractal, then choose a center
       if (this.center == null) {
 	center = {
@@ -282,19 +296,40 @@ function drawFractal(fractalIter) {
       } else if (this.lastArc) {
 	// If we've almost exceeded the boundary of the canvas, then this is the last arc of the fractal
 	// and we return to the origin
-
-	// Continue in the same clockwise/cc direction
-	angle = (angle + Math.PI) % (2 * Math.PI);
+	
+	if (this.deltaAngle > 0) {
+	  angle = -angle;
+	}
 	
 	var target = circleAtTarget(current, {x: 0, y: 0}, angle);
 	center = target.center;
 	radius = target.radius;
 	
-	// Ensure we go back to center on a clockwise or cc arc
+	// Note that Math.acos's range is [0, pi]
+	var startAngle = normalize(Math.acos(-(center.x - current.x) / radius));
+	var endAngle = normalize(-Math.acos(-center.x / radius));
+	// If both points are "above" the y-axis", then flip the start and end angle
+	console.log(center.y + " " + current.y);
+	if (center.y > current.y) {
+	  startAngle = normalize(-startAngle);
+	  endAngle = normalize(-endAngle);
+	}
+
+	angle = startAngle;
+	deltaAngle = endAngle - angle;
+
+	// Ensure we go back to center on a clockwise or cc arc, so modify deltaAngle
+	console.log("old deltaAngle: " + this.deltaAngle + " deltaAngle is: " + deltaAngle);
 	if (this.deltaAngle > 0) {
-	  deltaAngle = 2 * Math.PI + Math.acos(-center.x / radius) - angle;
+	  if (deltaAngle < 0) {
+	    console.log("TRIGGER 1");
+	    deltaAngle = deltaAngle + 2 * Math.PI;	    
+	  }
 	} else {
-	  deltaAngle = - Math.acos(-center.x / radius) - angle;
+	  if (deltaAngle > 0) {
+	    console.log("TRIGGER 2");
+	    deltaAngle -= 2 * Math.PI;
+	  }
 	}
       } else {
 	center = {
@@ -302,7 +337,6 @@ function drawFractal(fractalIter) {
 	  y: current.y + (current.y - this.center.y) * radius / currentState.radius
 	};
       }
-
       this.center = center;
       this.radius = radius;
       this.angle = angle;
@@ -384,9 +418,10 @@ function drawFractal(fractalIter) {
     
     var done = drawTick();
     debugTick++;
-    
-    if (debugTick == 11) {
+    console.log(debugTick);
+    if (debug && debugTick == 7) {
       stop = true;
+      throw new Error();
     }
 
     if (!done) {
