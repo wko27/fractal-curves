@@ -27,8 +27,6 @@ var debugRandom = [36.66749472867343,0.5803072437061573,40.54311063412653,1.0950
 var debugRandom = [27.962843813932935,3.0939100600351352,24.170794289120362,2.6219526639074973,30.041845891194583,0.6516121457289219,45.26320423775822,1.102265259939747,29.28763965305206,1.979026146019445,24.978783980135056,0.02843713285962057,24.35827389266104,3.0804393955318905,28.921820159641925,2.8366946770439365,33.235753572143125,0.19692795191124332,33.630051990377616,0.1435927902919604,33.06539334582426,1.7513902970366828,40.63615206999657,1.1678772010984182,20.522566541897923,0.34461070766055174,49.78821235011968,1.5294823386030196,36.12087691923132,3.0415662846349982,39.07220775143301,0.2506656342763163];
 var debugRandom = [24.211414905190836,1.5516969722623675,42.844115515888745,0.005811902718701385,45.35917548990889,3.0944022059104928,48.64211635201818,2.1631624145821977,25.69107316341308,2.5250690970976053,31.308238857963882,2.8353846340899262,42.40947085085639,0.45270941516598917,32.030004179430584,2.61606620393954,33.56291171051288,2.0986699936005104];
 var debugRandom = [22.114510674423848,2.3539754048546726,26.36204043344096,2.0095878245358,25.772525864273398,1.314034450479928,45.527751369124225,0.9160868361670123,42.234748471590954,2.4056515816243467,41.259034206580935,2.1073352837621653,42.98704943357763,1.201587529428262,33.37887892251614,0.45164352112689615,46.89729246507718,1.8592255075081188];
-var debugRandom = [46.89542296488316,0.24844424592404007,47.77839694346281,0.33300522356409235,23.37836401511641,0.2399935295244348,26.52091418357685,1.5479701598892481,39.80642441399988,1.6692386805477546,45.47429476414752,0.8973942908074762,22.20269047446734,0.818289777579056,36.51407176213415,1.242609008709481,38.904141894693254,1.9200512303324722,49.96003863260442,1.2096756759511176,38.94627066745685,0.171768091259403,38.16813114036388,2.1018087708945234,32.37906924648506,3.1232263592132936,45.88693877137572,2.674441956251635,34.10904337771987,0.8209850834383963,43.47629550025222,2.3171634495615625,29.564943854377596,1.429492250494885,48.069651082009,2.89535893957082,36.086697105614704,0.6369580015455181,21.651906058543844,1.0482097862658775,29.577546245643756,1.729700237891406,44.998650527589426,1.1278257797508804,22.28194298011183,2.1648195309886336,35.55265653295428,0.5664509939526579,22.845460447998697,1.6369786934901922,37.189386820741234,2.5784678801581236,49.46245223262916,2.194439114575927,39.52896614827145,0.3108531270980144,48.95434076395904,2.0993602469370667,34.72657482774727,2.2551536264754706,23.408755462148044,1.9548065695286003,45.480705348068525,2.567705961518342,36.19078812122214,2.762126676210352,32.28113825801242,1.4887812352094827,28.301840401785,1.1355833772754993,31.10872727419713,1.1320495049229518,38.778154738242364,1.6734643366753221,35.32918708739314,0.12659800351928055,20.462915260024324,0.08742002154044719,37.67622042400069,0.33253764329584,46.17529026842899,0.1672125922818676,46.0785542728737,0.05972570524938322,44.98105172577162,2.150224658023357,22.51039132704272,0.6060889830272538,24.910620657240173,2.957946008807311,32.40217190521142,0.5529595095086501,31.87358363549705,0.7593852779794474,30.320176459781045,2.229861123198928,44.44992813666661,0.4046443469247972,20.173343327085583,0.6151969601032388,40.97952183946862,0.9093397990135009,28.736041241122855,1.9389086929843233,33.48484562918587,0.08178734453446641,48.4349189168141,0.9741697789783791,37.85886878935095,0.4932448067313524,25.68352464453782,2.581079896982615,23.26560916562289,2.472252908951514,47.726635646093804,1.3759180521460486,49.85032747956819,1.0779178282076596,27.1738556399931,0.9562821998147673,25.658661296446404,2.94618352233207,46.06689317687777,1.1634672436921254,41.63965250105693,1.427962921561304,39.92661339147874,0.41502336009565205,29.440838074677583,0.25651750773252696,39.75994887042093,0.2057517259955229,32.47984299196542,0.16551311824743456,40.855815078959616,1.6356244813488945,47.85819506033928,2.8585205905405777,49.25602313033846,2.302345355617418,42.649027121772534,2.3294235254965248,20.245829690819576,1.4880563667326543,33.65032314021775,0.12725451693600298,20.25215104770682,0.24846665928343117,38.818130205313935,3.0749369826966437,20.646535133090136,1.072372661756579,45.20963739279348,0.5133345066931593,20.72811447600678,1.3604875740750522,48.07386469425828,0.7447681936789058,29.16548012333552,2.5449049272146214,36.25696758361097,1.1823908378339267,21.252294060643557,2.472231322740372,24.67205275344343,2.1512760113103244,29.4595028121242,0.1479715993609877,26.113270990846768,2.096469553904677,30.17272424447058,1.8072424140328565,37.567122221263794,0.7283170316080917,26.03807640222928,0.8682890366356312,22.429137132993066,3.090136193086547,21.048503803225763,1.6735230764279643,23.168967184056342,0.42159176079588523,42.58081425586878,1.6285260558761772,34.39132522106465,3.053801077463905,25.71808979914399,2.0336192540959703,42.44751511073464,2.111214625025851,44.159589581604365,0.29242631387241885];
-var debugRandom = [47.1898447436466,1.07717983788048,21.532234698822343,1.8723348279249639,44.62916000307403,0.5943389231384614,42.55267728709565,0.04490060593328688,29.17008255331229,2.1628186758076016,41.07860831725995,1.3386482068301202,20.750362701195723,1.6411890212277995,28.06551967269901,0.30903395947828366,40.32556842290387,1.4414819898183362,30.285433085342994,0.7291538031978385,39.12370228665961,2.5271798532713703,36.726096243174624,0.49850049164054727,45.98713735233552,0.26571156579476113,45.84171193761727,0.10582606035293507,44.366225205095745,2.218235780819926,46.332572712593894,2.5487658606593446,45.50490054716825,3.1192694046601197,40.26591104748046,3.074165361172974,20.91664040192469,2.4145813784870493,38.616031220889184,0.9866486108118528,22.84442576169203,0.2100294473176442,45.21590515522026,2.402389560813397,22.906304626162022,0.3657937295617002,43.39569597639551,1.738181164299975,36.99237767162826,0.7648299123900194,29.86306848911009,2.4614226137080033,35.62403900988286,1.3259519928445835,34.402473814405965,1.907464822231821,26.435202136764637,2.90505394419918,30.042836561742703,0.8468093988781522,45.85722831505138,0.7050138185260577,22.42861473682637,2.4546874147365747,41.61806077358483,1.0909515539293257,48.768289849942875,0.43265843009240007,44.3136135536961,0.42499521775103,24.040814699380554,2.761520798100188];
 var storeRandom = [];
 
 if (debug) {
@@ -237,8 +235,6 @@ function createCanvasContext() {
   
   var ctx = canvas.getContext("2d");
   ctx.translate(canvas.width / 2, canvas.height / 2);
-//  ctx.translate(0, -300);
-  
   return ctx;
 }
 
@@ -267,7 +263,70 @@ function drawFractal(fractalIter) {
         y: this.center.y + this.radius * Math.sin(this.angle + this.deltaAngle)
       };
     },
-    /** Chooses a new arc */
+    /** Set the target arc back to the origin */
+    returnToOrigin: function() {
+      var current = this.end();
+      
+      // If we've almost exceeded the boundary of the canvas, then this is the last arc of the fractal
+      // and we return to the origin
+      
+      // Track whether we were clockwise or not
+      var wasClockwise = this.deltaAngle > 0;
+
+      // Track whether the new circle needs to be internal or external to the old circle
+      // If the angle from the old center to the current point to the origin is obtuse, then the new circle
+      // and old circle are internally tangent (in which case, our starting angle should be the same as the
+      // last ending angle).
+      var centerToCurrentDistSq = this.radius * this.radius;
+      var currentToOriginDistSq = current.x * current.x + current.y * current.y;
+      var centerToOriginDistSq = this.center.x * this.center.x + this.center.y * this.center.y;
+      var flipCenter = centerToCurrentDistSq + currentToOriginDistSq > centerToOriginDistSq;
+      var angle;
+      if (flipCenter) {
+        angle = normalize(this.angle + this.deltaAngle + Math.PI);
+      } else {
+	angle = normalize(this.angle + this.deltaAngle);
+      }
+      
+      var target = circleAtTarget(current, {x: 0, y: 0}, angle);
+      var center = target.center;
+      var radius = target.radius;
+      
+      // Note that Math.acos's range is [0, pi]
+      var startAngle = normalize(Math.acos(-(center.x - current.x) / radius));
+      var endAngle = normalize(Math.acos(-center.x / radius));
+      
+      // Normalize the start and end angle to [0, 2pi]
+      if (center.y > current.y) {
+        startAngle = -startAngle;
+      }
+      
+      if (center.y > 0) {
+        endAngle = -endAngle;
+      }
+      
+      angle = startAngle;
+      var deltaAngle = endAngle - angle;
+      
+      if (flipCenter ^ wasClockwise) {
+        // negative
+        if (deltaAngle > 0) {
+          deltaAngle -= 2 * Math.PI;
+        }
+      } else {
+        // positive
+        if (deltaAngle < 0) {
+          deltaAngle += 2 * Math.PI;
+        }
+      }
+      
+      this.center = center;
+      this.radius = radius;
+      this.angle = angle;
+      this.deltaAngle = deltaAngle;
+      this.subArcPct = lengthPerTick / (radius * Math.abs(deltaAngle));
+    },
+    /** Chooses a new target arc */
     chooseNewArc: function() {
       var current = this.end();
       // Add pi to switch from cw to cc
@@ -289,73 +348,26 @@ function drawFractal(fractalIter) {
       this.lastArc = edge > maxEdge;
       
       // If this is the first arc of the fractal, then choose a center
-      if (this.center == null) {
-        center = {
-          x: -radius * Math.cos(currentState.angle),
-          y: -radius * Math.sin(currentState.angle)
-        };
-      } else if (this.lastArc) {
-        // If we've almost exceeded the boundary of the canvas, then this is the last arc of the fractal
-        // and we return to the origin
-        
-        // Track whether we were clockwise or not
-        var wasClockwise = this.deltaAngle > 0;
-        
-        // Track whether the new circle needs to be internal or external to the old circle
-        // If the angle from the old center to the current point to the origin is obtuse, then the new circle
-        // and old circle are internally tangent (in which case, our starting angle should be the same as the
-        // last ending angle).
-        var centerToCurrentDistSq = this.radius * this.radius;
-        var currentToOriginDistSq = current.x * current.x + current.y * current.y;
-        var centerToOriginDistSq = this.center.x * this.center.x + this.center.y * this.center.y;
-        var flipCenter = centerToCurrentDistSq + currentToOriginDistSq > centerToOriginDistSq;
-        
-        if (flipCenter) {
-          angle = normalize(angle + Math.PI);
-        }
-        
-	    var target = circleAtTarget(current, {x: 0, y: 0}, angle);
-    	center = target.center;
-    	radius = target.radius;
-    	
-    	// Note that Math.acos's range is [0, pi]
-    	var startAngle = normalize(Math.acos(-(center.x - current.x) / radius));
-    	var endAngle = normalize(Math.acos(-center.x / radius));
-    	
-    	// Normalize the start and end angle to [0, 2pi]
-    	if (center.y > current.y) {
-    		startAngle = -startAngle;
-    	}
-	    
-    	if (center.y > 0) {
-	    	endAngle = -endAngle;
-    	}
-
-    	angle = startAngle;
-    	deltaAngle = endAngle - angle;
-        
-        if (flipCenter ^ wasClockwise) {
-          // negative
-          if (deltaAngle > 0) {
-            deltaAngle -= 2 * Math.PI;
-          }
-        } else {
-          // positive
-          if (deltaAngle < 0) {
-            deltaAngle += 2 * Math.PI;
-          }
-        }
+      if (this.lastArc) {
+	this.returnToOrigin();
       } else {
-	    center = {
-	      x: current.x + (current.x - this.center.x) * radius / currentState.radius,
-    	  y: current.y + (current.y - this.center.y) * radius / currentState.radius
-	    };
+	if (this.center == null) {
+	  center = {
+	    x: -radius * Math.cos(currentState.angle),
+	    y: -radius * Math.sin(currentState.angle)
+	  };
+	} else {
+	  center = {
+	    x: current.x + (current.x - this.center.x) * radius / currentState.radius,
+	    y: current.y + (current.y - this.center.y) * radius / currentState.radius
+	  };
+	}
+	this.center = center;
+	this.radius = radius;
+	this.angle = angle;
+	this.deltaAngle = deltaAngle;
+	this.subArcPct = lengthPerTick / (radius * Math.abs(deltaAngle));
       }
-      this.center = center;
-      this.radius = radius;
-      this.angle = angle;
-      this.deltaAngle = deltaAngle;
-      this.subArcPct = lengthPerTick / (radius * Math.abs(deltaAngle));
     },
     // center of the arc
     center: null,
