@@ -1,28 +1,31 @@
 /**
- * Draw some pretty 
+ * Draw some pretty arcs
  */
-var windowWidth = window.innerWidth;
-var windowHeight = window.innerHeight;
-var lineWidth = window.devicePixelRatio <= 1 ? 2 : 1;
+const windowWidth = window.innerWidth;
+const windowHeight = window.innerHeight;
+const lineWidth = window.devicePixelRatio <= 1 ? 2 : 1;
 
+/** Maximum radius of a circle */
+const maxRadius = Math.min(windowWidth, windowHeight) * Math.PI / 8;
 /** Length of an arc to draw per tick (speed of animation) */
-var lengthPerTick = 10;
+const lengthPerTick = 10;
 /** Refresh interval in ms */
-var refreshInterval = 30;
+const refreshInterval = 30;
 /** Duration of the fade in milliseconds */
-var fadeDuration = 5000;
+const fadeDuration = 5000;
 
-var primaryColors = ["031DFF", "0AA4FF", "03D0E8", "03FFD4"];
+const primaryColors = ["92FF2A", "4367FF", "CC3A0D", "F456FF", "3CFFD4"];
 
-var mirrorEnabled = true;
+const mirrorEnabled = true;
 var stop = false;
 
 var debug = true;
 var debug = false;
-var debugTick = 0;
-var debugWindowWidth = 1440;
-var debugWindowHeight = 723;
+let debugTick = 0;
+const debugWindowWidth = 1440;
+const debugWindowHeight = 723;
 var debugRandom = [36.66749472867343,0.5803072437061573,40.54311063412653,1.095065208473482,46.75566512044486,0.6889392227448371,29.39461449466377,1.5043404840968815,29.246486977465853,2.5270691827877942,44.89622222458398,2.071488964454456,28.47217691107543,2.240188308062647,34.22089343560671,0.45817129755060415,23.213031840674955,0.6949415143906211,29.466983116830487,0.3120763376537161,41.77709794833548,1.784254068181204,38.01305499867807,2.495799945044138,27.956854622509304,2.117407986280862,43.64856970759081,0.19928420169101,25.429133930898118,1.88075650939983,47.99592675205919,2.593528778243238,44.09284134601582,0.01697566665828437,37.40807511805197,2.990666831806416,20.656888777622818,2.368879535204684,34.244717669516575,1.1891090259144164,36.838805641252065,2.7983089096735982,30.798215746937565,1.1727125486292675,22.0588134958852,1.5163022590823703,45.68895137576213,1.7030539228309174,47.14459847209878,1.1955399131111042,26.42215870818317,0.6559075347919783,35.29876771475159,3.088209415524267];
+var debugRandom = [13.42298084888047,24.80115325249382,1.8380026806310203,44.914203615025556,2.3988079560698226,48.39349077638127,2.732747984644082,45.50264840259338,1.9997805138517792,34.95876557391794,0.4587844822511333,37.99467221915827,3.090941524427886];
 var storeRandom = [];
 
 if (debug) {
@@ -40,12 +43,12 @@ document.addEventListener("click", function(){
 
 // draw axes
 (function() {
-   var ctx = createCanvasContext();
-   var center = {
+   const ctx = createCanvasContext();
+   const center = {
      radius: 0,
      angle: 0
    };
-   var edge = {
+   const edge = {
      radius: Math.max(windowWidth, windowHeight),
      angle: 0
    };
@@ -62,14 +65,14 @@ drawFractal(0);
  * Note this uses the Box-Muller method and is pretty slow
  */
 function gaussian(mu, sigma) {
-  var u = 1 - uniform(0, 1); // Subtraction to flip [0, 1) to (0, 1].
-  var v = 1 - uniform(0, 1);
+  const u = 1 - uniform(0, 1); // Subtraction to flip [0, 1) to (0, 1].
+  const v = 1 - uniform(0, 1);
   return mu + sigma * Math.sqrt(-2.0 * Math.log(u)) * Math.cos(2.0 * Math.PI * v);
 }
 
 /** @return Randomly chosen value from uniform distribution on [0, 1) */
 function uniform(lower, upper) {
-  var r;
+  let r;
   if (debug) {
     r = debugRandom.shift();
   } else {
@@ -100,8 +103,8 @@ function toCartesian(c) {
  * @return Polar coordinates of the replicas
  */
 function createReplicas(replicationFactor, c) {
-  var replicas = [];
-  var x;
+  const replicas = [];
+  let x;
   for (x = 0; x < replicationFactor; x++) {
     replicas.push({
       radius: c.radius,
@@ -128,12 +131,12 @@ function createMirror(c) {
  * @param next Next location in polar coordinates
  */
 function drawLines(replicationFactor, ctx, current, next) {
-  var currentReplicas = createReplicas(replicationFactor, current);
-  var nextReplicas = createReplicas(replicationFactor, next);
+  const currentReplicas = createReplicas(replicationFactor, current);
+  const nextReplicas = createReplicas(replicationFactor, next);
   var x;
   for (x = 0; x < replicationFactor; x++) {
-    var xCurrent = toCartesian(currentReplicas[x]);
-    var xNext = toCartesian(nextReplicas[x]);
+    let xCurrent = toCartesian(currentReplicas[x]);
+    let xNext = toCartesian(nextReplicas[x]);
 
     ctx.beginPath();
     ctx.moveTo(xCurrent.x, xCurrent.y);
@@ -151,13 +154,13 @@ function drawLines(replicationFactor, ctx, current, next) {
  * @param endAngle Angle to end at
  */
 function drawArcs(replicationFactor, ctx, center, radius, startAngle, deltaAngle, style) {
-  var counterClockwise = deltaAngle < 0;
-  var replicas = createReplicas(replicationFactor, center);
-  var i;
+  const counterClockwise = deltaAngle < 0;
+  const replicas = createReplicas(replicationFactor, center);
+  let i;
   for (i = 0; i < replicationFactor; i++) {
-    var replica = toCartesian(replicas[i]);
-    var replicaStartAngle = startAngle + i * 2 * Math.PI / replicationFactor;
-    var replicaEndAngle = (startAngle + deltaAngle) + i * 2 * Math.PI / replicationFactor;
+    const replica = toCartesian(replicas[i]);
+    const replicaStartAngle = startAngle + i * 2 * Math.PI / replicationFactor;
+    const replicaEndAngle = (startAngle + deltaAngle) + i * 2 * Math.PI / replicationFactor;
     // Note that the end angle is measured CLOCKWISE FROM THE X-AXIS (according to spec)
     ctx.beginPath();
     ctx.arc(replica.x, replica.y, radius, replicaStartAngle, replicaEndAngle, counterClockwise);
@@ -180,8 +183,8 @@ function line(ctx, start, end) {
  * @param center Center of the circle in Cartesian coordinates
  */
 function circle(ctx, center) {
-  var oldWidth = ctx.lineWidth;
-  var oldStyle = ctx.strokeStyle;
+  const oldWidth = ctx.lineWidth;
+  const oldStyle = ctx.strokeStyle;
   ctx.lineWidth = 1;
   ctx.beginPath();
   ctx.arc(center.x, center.y, 5, 0, 2 * Math.PI);
@@ -196,15 +199,15 @@ function circle(ctx, center) {
  */
 function circleAtTarget(from, to, angle) {
   // shift the circle so the to is at the origin
-  var a = from.x - to.x;
-  var b = from.y - to.y;
+  const a = from.x - to.x;
+  const b = from.y - to.y;
   
   // basically we're solving for two linear equations
   // (x - a)^2 + (x - b)^2 = x^2 + b^2 since the center's distance to the current point is equivalent to the center's distance to the origin
   // a = x + r * cos(theta) and b = x + r * sin(theta) since the angle to current is fixed
   // thanks yeager :P
-  var x = (a * a - b * b + 2 * a * b * Math.tan(angle)) / (2 * (a + b * Math.tan(angle)));
-  var y = ((a * a + b * b) / 2 - a * x) / b;
+  const x = (a * a - b * b + 2 * a * b * Math.tan(angle)) / (2 * (a + b * Math.tan(angle)));
+  const y = ((a * a + b * b) / 2 - a * x) / b;
   return {
     center: {
       x: x + to.x,
@@ -216,7 +219,7 @@ function circleAtTarget(from, to, angle) {
 
 /** Create a new canvas and initialize */
 function createCanvasContext() {
-  var canvas = document.createElement("canvas");
+  const canvas = document.createElement("canvas");
   document.body.appendChild(canvas);
   
   canvas.width = windowWidth;
@@ -228,22 +231,22 @@ function createCanvasContext() {
   canvas.style.transition = "opacity " + fadeDuration + "ms ease-out";
   canvas.style.position = "absolute";
   
-  var ctx = canvas.getContext("2d");
+  const ctx = canvas.getContext("2d");
   ctx.translate(canvas.width / 2, canvas.height / 2);
   return ctx;
 }
 
 function normalize(angle) {
-  var mod = 2 * Math.PI;
+  const mod = 2 * Math.PI;
   return ((angle % mod) + mod) % mod;
 }
 
 /** Draw a single randomized fractal that starts and ends at the origin */
 function drawFractal(fractalIter) {
-  var ctx = createCanvasContext();
+  const ctx = createCanvasContext();
   ctx.lineWidth = lineWidth;
 
-  var currentState = {
+  const currentState = {
     /** @return end of the current path */
     end: function() {
       if (this.center == null) {
@@ -260,36 +263,39 @@ function drawFractal(fractalIter) {
     },
     /** Set the target arc back to the origin */
     returnToOrigin: function() {
-      var current = this.end();
+      const current = this.end();
       
       // If we've almost exceeded the boundary of the canvas, then this is the last arc of the fractal
       // and we return to the origin
       
       // Track whether we were clockwise or not
-      var wasClockwise = this.deltaAngle > 0;
+      const wasClockwise = this.deltaAngle > 0;
 
       // Track whether the new circle needs to be internal or external to the old circle
       // If the angle from the old center to the current point to the origin is obtuse, then the new circle
       // and old circle are internally tangent (in which case, our starting angle should be the same as the
       // last ending angle).
-      var centerToCurrentDistSq = this.radius * this.radius;
-      var currentToOriginDistSq = current.x * current.x + current.y * current.y;
-      var centerToOriginDistSq = this.center.x * this.center.x + this.center.y * this.center.y;
-      var flipCenter = centerToCurrentDistSq + currentToOriginDistSq > centerToOriginDistSq;
-      var angle;
+      const centerToCurrentDistSq = this.radius * this.radius;
+      const currentToOriginDistSq = current.x * current.x + current.y * current.y;
+      const centerToOriginDistSq = this.center.x * this.center.x + this.center.y * this.center.y;
+      const flipCenter = centerToCurrentDistSq + currentToOriginDistSq > centerToOriginDistSq;
+      let angle;
       if (flipCenter) {
         angle = normalize(this.angle + this.deltaAngle + Math.PI);
       } else {
 	angle = normalize(this.angle + this.deltaAngle);
       }
       
-      var target = circleAtTarget(current, {x: 0, y: 0}, angle);
-      var center = target.center;
-      var radius = target.radius;
+      const target = circleAtTarget(current, {x: 0, y: 0}, angle);
+      const center = target.center;
+      const radius = target.radius;
+      if (radius > maxRadius) {
+	return false;
+      }
       
       // Note that Math.acos's range is [0, pi]
-      var startAngle = normalize(Math.acos(-(center.x - current.x) / radius));
-      var endAngle = normalize(Math.acos(-center.x / radius));
+      let startAngle = normalize(Math.acos(-(center.x - current.x) / radius));
+      let endAngle = normalize(Math.acos(-center.x / radius));
       
       // Normalize the start and end angle to [0, 2pi]
       if (center.y > current.y) {
@@ -301,7 +307,7 @@ function drawFractal(fractalIter) {
       }
       
       angle = startAngle;
-      var deltaAngle = endAngle - angle;
+      let deltaAngle = endAngle - angle;
       
       if (flipCenter ^ wasClockwise) {
         // negative
@@ -320,15 +326,17 @@ function drawFractal(fractalIter) {
       this.angle = angle;
       this.deltaAngle = deltaAngle;
       this.subArcPct = lengthPerTick / (radius * Math.abs(deltaAngle));
+      
+      return true;
     },
     /** Chooses a new target arc */
     chooseNewArc: function() {
-      var current = this.end();
+      const current = this.end();
       // Add pi to switch from cw to cc
-      var angle = normalize(this.angle + this.deltaAngle + Math.PI);
-      var radius = uniform(20, 50);
-      var deltaAngle = uniform(0, Math.PI);
-      var center;
+      const angle = normalize(this.angle + this.deltaAngle + Math.PI);
+      const radius = uniform(20, 50);
+      let deltaAngle = uniform(0, Math.PI);
+      let center;
       
       // Switch from cw to cc or vice versa
       if (currentState.deltaAngle > 0) {
@@ -336,21 +344,15 @@ function drawFractal(fractalIter) {
       }
 
       // Check if the end point would be out of the canvas
-      var edge = Math.max(
-      Math.abs(current.x + radius * Math.cos(deltaAngle)),
-      Math.abs(current.y + radius * Math.sin(deltaAngle)));
-      var maxEdge = Math.min(windowHeight, windowWidth) * 2 / 6;
+      const edge = Math.max(
+	Math.abs(current.x + radius * Math.cos(deltaAngle)),
+	Math.abs(current.y + radius * Math.sin(deltaAngle))
+      );
+      const maxEdge = Math.min(windowHeight, windowWidth) * 2 / 6;
       
-      // Check if the angle would be too steep (i.e. it would take forever to return to the origin)
-      var angleToOrigin = Math.atan(current.y, current.x);
-      var tooSteep = Math.abs(angleToOrigin - angle + Math.PI / 2) < Math.PI / 10
-		       || Math.abs(angleToOrigin - angle - Math.PI / 2) < Math.PI / 10;
-      
-      this.lastArc = edge > maxEdge && !tooSteep;
-
       // If this is the first arc of the fractal, then choose a center
-      if (this.lastArc) {
-	this.returnToOrigin();
+      if (edge > maxEdge && this.returnToOrigin()) {
+	this.lastArc = true;
       } else {
 	if (this.center == null) {
 	  center = {
@@ -393,7 +395,7 @@ function drawFractal(fractalIter) {
    * Draw a single tick of an arc
    * @return True if the fractal is complete
    */
-  var drawTick = function() {
+  const drawTick = function() {
     if (currentState.subArcPct === 0 || currentState.subArcTick * currentState.subArcPct >= 1) {
       if (currentState.lastArc) {
 	return true;
@@ -403,8 +405,8 @@ function drawFractal(fractalIter) {
       currentState.subArcTick = 0;
     }
     
-    var startAngle = currentState.angle + currentState.subArcTick * (currentState.deltaAngle * currentState.subArcPct);
-    var deltaAngle = currentState.subArcPct * currentState.deltaAngle;
+    const startAngle = currentState.angle + currentState.subArcTick * (currentState.deltaAngle * currentState.subArcPct);
+    let deltaAngle = currentState.subArcPct * currentState.deltaAngle;
     if ((currentState.subArcTick + 1) * currentState.subArcPct >= 1) {
       deltaAngle = (1 - currentState.subArcTick * currentState.subArcPct) * currentState.deltaAngle;
     }
@@ -440,7 +442,7 @@ function drawFractal(fractalIter) {
     return false;
   };
   
-  var draw = function() {
+  const draw = function() {
     if (stop) {
       console.log("window height: " + windowHeight);
       console.log("window width: " + windowWidth);
@@ -448,7 +450,7 @@ function drawFractal(fractalIter) {
       return;
     }
     
-    var done = drawTick();
+    const done = drawTick();
     
     debugTick++;
     if (debug) {
