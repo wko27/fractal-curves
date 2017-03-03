@@ -1,0 +1,18 @@
+{
+  "name": "fractal-curves",
+  "version": "1.0.0",
+  "description": "Little project using HTML5 canvas.Inspired by http://ben.akrin.com/mandala/",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "nodemon server/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/wko27/fractal-curves.git"
+  },
+  "author": "Andrew Ko",
+  "devDependencies": {
+    "nodemon": "^1.11.0",
+    "express": "^4.13.3"
+  }
+}
