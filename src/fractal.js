@@ -36,11 +36,6 @@ if (debug) {
 
 }
 
-// register a mouse event listener
-document.addEventListener("click", function(){
-   stop = true;
-});
-
 function start() {
   // draw axes
   (function() {
@@ -478,7 +473,10 @@ function drawFractal(fractalIter) {
 };
 
 module.exports = {
-  start: start
+  start: start,
+  stop: () => {
+    stop = true;
+  }
 };
 
 /*
