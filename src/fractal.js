@@ -36,8 +36,7 @@ if (debug) {
 
 }
 
-function start() {
-  // draw axes
+function drawAxis() {
   (function() {
      const ctx = createCanvasContext();
      const center = {
@@ -52,6 +51,13 @@ function start() {
      ctx.strokeStyle = "grey";
      drawLines(8, ctx, center, edge);
    }());
+}
+
+function start(axisOn) {
+  // draw axes
+  if (axisOn) {
+    drawAxis();
+  }
 
   // draw first fractal
   drawFractal(0);
@@ -440,13 +446,6 @@ function drawFractal(fractalIter) {
   };
 
   const draw = function() {
-    if (stop) {
-      console.log("window height: " + windowHeight);
-      console.log("window width: " + windowWidth);
-      console.log("random: " + JSON.stringify(storeRandom));
-      return;
-    }
-
     const done = drawTick();
 
     debugTick++;
@@ -459,9 +458,11 @@ function drawFractal(fractalIter) {
       setTimeout(draw, refreshInterval);
     } else {
       ctx.canvas.style.opacity = 0;
-      setTimeout(function() {
-        drawFractal(fractalIter + 1);
-      }, refreshInterval);
+      if (!stop) {
+	setTimeout(function() {
+	  drawFractal(fractalIter + 1);
+	}, refreshInterval);
+      }
 
       setTimeout(function() {
         document.body.removeChild(ctx.canvas);
