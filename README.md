@@ -8,6 +8,6 @@ Inspired by http://ben.akrin.com/mandala/
 `npm install`
 
 ## Let the fun begin!
-`npm start`
+`npm run build && npm start`
 
 Go to [http://localhost:8080](http://localhost:8080)
