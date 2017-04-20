@@ -2,8 +2,11 @@
   "name": "fractal-curves",
   "version": "1.0.0",
   "description": "Little project using HTML5 canvas.Inspired by http://ben.akrin.com/mandala/",
-  "main": "src/index.js",
+  "main": "src/fractal.js",
   "scripts": {
+    "build": "npm run clean && mkdir -p dist && browserify src/index.js -o dist/main.js",
+    "clean": "rm -rf dist",
+    "watch": "npm run clean && mkdir -p dist && watchify src/index.js -o dist/main.js",
     "start": "nodemon server/index.js"
   },
   "repository": {
@@ -13,6 +16,8 @@
   "author": "Andrew Ko",
   "devDependencies": {
     "nodemon": "^1.11.0",
-    "express": "^4.13.3"
+    "express": "^4.13.3",
+    "browserify": "^14.1.0",
+    "watchify": "^3.9.0"
   }
 }
