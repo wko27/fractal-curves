@@ -5,9 +5,56 @@
 	<meta charset="UTF-8">
 	<title>Fractal Curves</title>
 </head>
+<style>
+#parent {
+  display: flex;
+  flex-direction: row;
+}
 
-<body>
-<script src="dist/main.js"></script>
+.row {
+  height: 100%;
+  display: flex;
+  flex: 0 0 50%;
+  flex-direction: column;
+}
+
+#a,#b,#c,#d {
+  flex: 0 0 50%;
+  position: relative;
+}
+
+#a {
+  background-color: white;
+}
+
+#b {
+  background-color: #FF009A;
+}
+
+#c {
+  background-color: #0045FF;
+}
+
+#d {
+  background-color: black;
+}
+
+body{
+    margin: 0;
+}
+</style>
+<body >
+  <div id="parent">
+    <div class="row">
+      <div id="a"></div>
+      <div id="b"></div>
+    </div>
+    <div class="row">
+      <div id="c"></div>
+      <div id="d"></div>
+    </div>
+  </div>
+  <script src="dist/main.js"></script>
 <body/>
 
 </html>

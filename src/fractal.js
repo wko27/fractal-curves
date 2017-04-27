@@ -1,12 +1,7 @@
 /**
  * Draw some pretty arcs
  */
-const windowWidth = window.innerWidth;
-const windowHeight = window.innerHeight;
-const lineWidth = window.devicePixelRatio <= 1 ? 2 : 1;
 
-/** Maximum radius of a circle */
-const maxRadius = Math.min(windowWidth, windowHeight) * Math.PI / 8;
 /** Length of an arc to draw per tick (speed of animation) */
 const lengthPerTick = 10;
 /** Refresh interval in ms */
@@ -17,10 +12,9 @@ const fadeDuration = 5000;
 const primaryColors = ["92FF2A", "4367FF", "CC3A0D", "F456FF", "3CFFD4"];
 
 const mirrorEnabled = true;
-var stop = false;
 
-var debug = true;
 var debug = false;
+var debugOneIter = false;
 let debugTick = 0;
 const debugWindowWidth = 1440;
 const debugWindowHeight = 723;
@@ -33,34 +27,55 @@ if (debug) {
 //  windowWidth = debugWindowWidth;
 //  windowHeight = debugWindowHeight;
   lengthPerTick = 1000;
-
 }
 
-function drawAxis() {
-  (function() {
-     const ctx = createCanvasContext();
-     const center = {
-       radius: 0,
-       angle: 0
-     };
-     const edge = {
-       radius: Math.max(windowWidth, windowHeight),
-       angle: 0
-     };
-     ctx.lineWidth = 1;
-     ctx.strokeStyle = "grey";
-     drawLines(8, ctx, center, edge);
-   }());
+function newComponentState(domElement, width, height) {
+  width = width === undefined ? window.innerWidth : width;
+  height = height === undefined ? window.innerHeight : height;
+  const lineWidth = window.devicePixelRatio <= 1 ? 2 : 1;
+  /** Maximum radius of a circle */
+  const maxRadius = Math.min(width, height) * Math.PI / 8;
+
+  return {
+    domElement: domElement,
+    windowWidth: width,
+    windowHeight: height,
+    lineWidth: lineWidth,
+    maxRadius: maxRadius,
+    axisCtx: null,
+    fractalIter: 0,
+    stop: false,
+    stopCallback: null
+  };
 }
 
-function start(axisOn) {
-  // draw axes
-  if (axisOn) {
-    drawAxis();
-  }
+function drawAxis(componentState) {
+  const ctx = createCanvasContext(componentState);
+  const center = {
+    radius: 0,
+    angle: 0
+  };
+  const edge = {
+    radius: Math.min(componentState.windowWidth, componentState.windowHeight),
+    angle: 0
+  };
+  ctx.lineWidth = 1;
+  ctx.strokeStyle = "grey";
+  drawLines(8, ctx, center, edge);
+  
+  componentState.axisCtx = ctx;
+}
 
-  // draw first fractal
-  drawFractal(0);
+function start(domElement, width, height) {
+  const componentState = newComponentState(domElement, width, height);
+  drawAxis(componentState);
+  drawFractal(componentState);
+  return {
+    stop: (callback) => {
+      componentState.stop = true;
+      componentState.stopCallback = callback;
+    }
+  };
 }
 
 /**
@@ -221,17 +236,18 @@ function circleAtTarget(from, to, angle) {
 }
 
 /** Create a new canvas and initialize */
-function createCanvasContext() {
+function createCanvasContext(componentState, absolute) {
   const canvas = document.createElement("canvas");
-  document.body.appendChild(canvas);
-
-  canvas.width = windowWidth;
-  canvas.height = windowHeight;
+  componentState.domElement.appendChild(canvas);
+  
+  canvas.width = componentState.windowWidth;
+  canvas.height = componentState.windowHeight;
 
   canvas.style.padding = 0;
-  canvas.style.margin = "auto";
-  canvas.style.display = "block";
   canvas.style.transition = "opacity " + fadeDuration + "ms ease-out";
+
+  canvas.style.top = 0;
+  canvas.style.left = 0;
   canvas.style.position = "absolute";
 
   const ctx = canvas.getContext("2d");
@@ -245,9 +261,9 @@ function normalize(angle) {
 }
 
 /** Draw a single randomized fractal that starts and ends at the origin */
-function drawFractal(fractalIter) {
-  const ctx = createCanvasContext();
-  ctx.lineWidth = lineWidth;
+function drawFractal(componentState) {
+  const ctx = createCanvasContext(componentState);
+  ctx.lineWidth = componentState.lineWidth;
 
   const currentState = {
     /** @return end of the current path */
@@ -292,7 +308,7 @@ function drawFractal(fractalIter) {
       const target = circleAtTarget(current, {x: 0, y: 0}, angle);
       const center = target.center;
       const radius = target.radius;
-      if (radius > maxRadius) {
+      if (radius > componentState.maxRadius) {
 	return false;
       }
 
@@ -351,7 +367,7 @@ function drawFractal(fractalIter) {
 	Math.abs(current.x + radius * Math.cos(deltaAngle)),
 	Math.abs(current.y + radius * Math.sin(deltaAngle))
       );
-      const maxEdge = Math.min(windowHeight, windowWidth) * 2 / 6;
+      const maxEdge = Math.min(componentState.windowHeight, componentState.windowWidth) * 2 / 6;
 
       // If this is the first arc of the fractal, then choose a center
       if (edge > maxEdge && this.returnToOrigin()) {
@@ -428,7 +444,7 @@ function drawFractal(fractalIter) {
       );
     }
 
-    ctx.strokeStyle = "#" + primaryColors[fractalIter % primaryColors.length];
+    ctx.strokeStyle = "#" + primaryColors[componentState.fractalIter % primaryColors.length];
     drawArcs(
       currentState.replicationFactor,
       ctx,
@@ -454,19 +470,34 @@ function drawFractal(fractalIter) {
       console.log(debugTick);
     }
 
+    // If we're not done with this arc, then continue drawing
     if (!done) {
       setTimeout(draw, refreshInterval);
-    } else {
+    } else if (!debugOneIter) {
+      // Otherwise, we're done with this arc
+      
+      // Fade the old fractal's canvas away, and remove from dom
       ctx.canvas.style.opacity = 0;
-      if (!stop) {
-	setTimeout(function() {
-	  drawFractal(fractalIter + 1);
-	}, refreshInterval);
-      }
-
-      setTimeout(function() {
-        document.body.removeChild(ctx.canvas);
+      setTimeout(() => {
+        componentState.domElement.removeChild(ctx.canvas);
       }, fadeDuration);
+
+      // If we haven't requested stop yet, then draw a new fractal
+      if (!componentState.stop) {
+	setTimeout(() => {
+	  componentState.fractalIter = componentState.fractalIter + 1;
+	  drawFractal(componentState);
+	}, refreshInterval);
+      } else {
+	  // If we have requested a stop, then fade the axis's canvas away, and remove from dom
+	componentState.axisCtx.canvas.style.opacity = 0;
+	setTimeout(() => {
+	  componentState.domElement.removeChild(componentState.axisCtx.canvas);
+	  if (componentState.stopCallback) {
+	    componentState.stopCallback();
+	  }
+	}, fadeDuration);
+      }      
     }
   };
 
@@ -474,10 +505,7 @@ function drawFractal(fractalIter) {
 };
 
 module.exports = {
-  start: start,
-  stop: () => {
-    stop = true;
-  }
+  start: start
 };
 
 /*
