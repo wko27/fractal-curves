@@ -13,7 +13,7 @@ function start() {
   
   let div = document.getElementById(chosen);
   let animation = fractal.start(div, div.offsetWidth, div.offsetHeight);
-  let timeout = Math.floor(Math.random() * 5000);
+  let timeout = 2000 + Math.floor(Math.random() * 5000);
   setTimeout(() => {
       animation.stop(() => {
 	// start a new one, then add the square back in
