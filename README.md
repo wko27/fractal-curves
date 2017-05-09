@@ -1,3 +1,5 @@
+[![npm version](https://badge.fury.io/js/fractal-curves.svg)](https://badge.fury.io/js/fractal-curves)
+
 # fractal-curves
 
 Little project using HTML5 canvas
