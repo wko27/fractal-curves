@@ -7,5 +7,8 @@ Inspired by http://ben.akrin.com/mandala/
 ## Installation
 `npm install`
 
-## Let the fun begin!
+## Local Testing
 `npm run build && ( sleep 3 && open 'http://localhost:8080' & ) && npm start`
+
+## Dependencies
+- none :P

@@ -1,13 +1,14 @@
 {
   "name": "fractal-curves",
   "version": "1.0.0",
-  "description": "Little project using HTML5 canvas.Inspired by http://ben.akrin.com/mandala/",
+  "description": "Fractal curves using HTML5 canvas.  Inspired by http://ben.akrin.com/mandala/",
   "main": "src/fractal.js",
   "scripts": {
     "build": "npm run clean && mkdir -p dist && browserify src/index.js -o dist/main.js",
     "clean": "rm -rf dist",
     "watch": "npm run clean && mkdir -p dist && watchify src/index.js -o dist/main.js",
-    "start": "nodemon server/index.js"
+    "start": "nodemon server/index.js",
+    "prepublish": "npm run build"
   },
   "repository": {
     "type": "git",
