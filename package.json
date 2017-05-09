@@ -1,6 +1,6 @@
 {
   "name": "fractal-curves",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Fractal curves using HTML5 canvas.  Inspired by http://ben.akrin.com/mandala/",
   "main": "src/fractal.js",
   "scripts": {
