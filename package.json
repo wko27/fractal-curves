@@ -6,9 +6,9 @@
   "scripts": {
     "build": "npm run clean && mkdir -p dist && browserify src/index.js -o dist/main.js",
     "clean": "rm -rf dist",
-    "watch": "npm run clean && mkdir -p dist && watchify src/index.js -o dist/main.js",
+    "prepublish": "npm run build",
     "start": "nodemon server/index.js",
-    "prepublish": "npm run build"
+    "watch": "npm run clean && mkdir -p dist && watchify src/index.js -o dist/main.js"
   },
   "repository": {
     "type": "git",
